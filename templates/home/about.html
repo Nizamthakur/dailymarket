@@ -1,0 +1,42 @@
+{% extends "baseFiles/base.html" %}
+
+{% block title %}About Daily Market{% endblock %}
+
+{% block content %}
+<div style="max-width:800px; margin:40px auto; font-family:Arial, sans-serif; line-height:1.6;">
+
+    <h1 style="color:#2c3e50; margin-bottom:20px;">About Daily Market</h1>
+    <p>
+        Welcome to <strong>Daily Market</strong>! We are a fast, affordable, and reliable online marketplace
+        where you can find everything you need, anytime, anywhere. Our platform is designed to make
+        shopping simple, convenient, and enjoyable for everyone.
+    </p>
+
+    <h2 style="color:#34495e; margin-top:30px;">Our Mission</h2>
+    <p>
+        To provide a seamless online shopping experience where customers can easily access
+        a wide variety of products at affordable prices, all in one place.
+    </p>
+
+    <h2 style="color:#34495e; margin-top:30px;">Our Vision</h2>
+    <p>
+        To become the most trusted online marketplace in Bangladesh, delivering fast, secure,
+        and reliable services to every customer.
+    </p>
+
+    <h2 style="color:#34495e; margin-top:30px;">Why Choose Us?</h2>
+    <ul style="margin-left:20px;">
+        <li>🚀 Fast Delivery: Get your orders delivered quickly, every time.</li>
+        <li>💰 Affordable Prices: High-quality products at prices that fit your budget.</li>
+        <li>🛒 Wide Selection: Everything you need, all in one place.</li>
+        <li>📱 Easy Online Shopping: Convenient and user-friendly platform.</li>
+    </ul>
+
+    <h2 style="color:#34495e; margin-top:30px;">Get in Touch</h2>
+    <p>
+        Have questions or want to work with us? Visit our
+        <a href="{% url 'contact' %}" style="color:#2980b9; text-decoration:none;">Contact Page</a>
+        or reach out via our social channels. We're always here to help!
+    </p>
+</div>
+{% endblock %}

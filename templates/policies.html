@@ -1,0 +1,69 @@
+{% extends "baseFiles/base.html" %}
+{% load static %}
+{% block content %}
+<div class="container mt-5 mb-5">
+    <h2 class="mb-4 text-center">Policies & Rules</h2>
+
+    <!-- Payment Rules -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header text-white" style="background-color: #ed5d24;">
+            <h4 class="mb-0">Payment Rules</h4>
+        </div>
+        <div class="card-body">
+            <p>আমাদের সাইটে কেনাকাটা করার সময় নিম্নলিখিত পেমেন্ট মাধ্যম ব্যবহার করা যাবে:</p>
+            <ul>
+                <li>Bkash (Personal & Merchant)</li>
+                <li>Nagad</li>
+                <li>Upay</li>
+                <li>Debit/Credit Cards (Visa, MasterCard)</li>
+            </ul>
+
+            <div class="d-flex gap-3 flex-wrap mt-3">
+                <img src="{% static 'images/payments/bkash.png' %}" alt="Bkash" height="50">
+                <img src="{% static 'images/payments/nagad.png' %}" alt="Nagad" height="50">
+                <img src="{% static 'images/payments/upay.png' %}" alt="Upay" height="50">
+                <img src="{% static 'images/payments/visa.png' %}" alt="Visa" height="50">
+                <img src="{% static 'images/payments/mastercard.png' %}" alt="MasterCard" height="50">
+            </div>
+        </div>
+    </div>
+
+    <!-- Refund Policy -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header text-white" style="background-color: #ed5d24;">
+            <h4 class="mb-0">Refund & Return Policy</h4>
+        </div>
+        <div class="card-body">
+            <ul>
+                <li>যদি আপনি ভুল/ডিফেক্টিভ পণ্য পান তবে ৭ দিনের মধ্যে রিটার্ন করতে পারবেন।</li>
+                <li>পণ্য অবশ্যই অরিজিনাল প্যাকেজিং সহ ফেরত দিতে হবে।</li>
+                <li>Cash Refund হলে ৭-১০ কর্মদিবসের মধ্যে প্রসেস হবে।</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Shipping Policy -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header text-white" style="background-color: #ed5d24;">
+            <h4 class="mb-0">Shipping & Delivery</h4>
+        </div>
+        <div class="card-body">
+            <ul>
+                <li>ঢাকার মধ্যে ২৪-৪৮ ঘণ্টায় ডেলিভারি।</li>
+                <li>ঢাকার বাইরে ৩-৫ কর্মদিবসের মধ্যে ডেলিভারি।</li>
+                <li>Delivery charge Order এর সাথে নির্ধারিত হবে।</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Privacy Policy -->
+    <div class="card shadow-sm">
+        <div class="card-header text-white" style="background-color: #ed5d24;">
+            <h4 class="mb-0">Privacy Policy</h4>
+        </div>
+        <div class="card-body">
+            <p>আপনার সকল ব্যক্তিগত তথ্য (নাম, ফোন নম্বর, ঠিকানা, পেমেন্ট ডিটেইলস) আমাদের সিস্টেমে নিরাপদে সংরক্ষিত থাকবে এবং কোনভাবেই তৃতীয় পক্ষের সাথে শেয়ার করা হবে না।</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

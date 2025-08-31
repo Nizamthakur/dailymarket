@@ -1,16 +1,48 @@
 {% extends "accounts/user/dashboard-base.html" %}
 
-
 {% block dashboard-content %}
 <div class="container mt-10">
-    <div class="oder-detals">
-        <h1>Oder History:-</h1>
-        <hr>
+
+    <!-- Shipping Address -->
+    {% if shipping_addesss %}
+    <div class="card mb-3 p-3 border rounded">
+        <h5>Shipping Address</h5>
+        <p>{{ shipping_addesss }}</p>
     </div>
-{% include 'baseFiles/messages.html' %}
-{% include 'products/OderSummary.html' %}
+    {% endif %}
+
+    <!-- Order Summary -->
+    <div class="card mb-3 p-3 border rounded">
+        <h5>Order Summary</h5>
+        <p>Total Products Placed: {{ total_products_placed }}</p>
+
+    </div>
+
+    <!-- Placed Orders -->
+    <h3>Placed Orders:</h3>
+    {% if placed_oders_by_oder_id %}
+        {% for order in placed_oders_by_oder_id %}
+        <div class="card mb-3 p-3 border rounded">
+            <h5>Order #: {{ order.order_number }}</h5>
+            <p>Status: {{ order.status }}</p>
+            <p>Placed On: {{ order.placed_date|date:"d M Y H:i" }}</p>
+            <p>Subtotal: ৳{{ order.sub_total_price|floatformat:2 }}</p>
+
+            <h6>Items:</h6>
+            <ul>
+                {% for item in order.order_items.all %}
+                <li>
+                    {{ item.product.title }} × {{ item.quantity }} = ৳{{ item.total_price|floatformat:2 }}
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p class="text-muted">You have no placed orders.</p>
+    {% endif %}
+
+
+
 </div>
-
-
 {% endblock dashboard-content %}
-    

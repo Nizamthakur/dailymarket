@@ -152,7 +152,11 @@
             <div class="col-md-6">
               <div class="card mb-4 mb-md-0">
                 <div class="card-body">
-                  <h3><a href="{% url 'user_dashboard' %}">Oder History ></a></h3>
+                    <h3>
+                        <a href="{% if request.user.user_role == '3' %}{% url 'vendor_dashboard' %}{% else %}{% url 'user_dashboard' %}{% endif %}">
+                            Order History &gt;
+                        </a>
+                    </h3>
                 </div>
               </div>
             </div>

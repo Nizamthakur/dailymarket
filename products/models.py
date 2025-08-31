@@ -5,7 +5,7 @@ from ckeditor.fields import RichTextField
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.core.exceptions import PermissionDenied
 import time
-# Create your models here.
+from django.urls import reverse
 
 
 class Industry(models.Model):
@@ -25,8 +25,9 @@ class Industry(models.Model):
 class Categories(models.Model):
     name = models.CharField(max_length=100)
     slug = models.SlugField(unique=True, blank=True)
-    industry = models.ForeignKey(Industry, on_delete=models.DO_NOTHING)
+    industry = models.ForeignKey(Industry, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
+    image = models.ImageField(upload_to='category-images/', blank=True, null=True)
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -40,7 +41,12 @@ class Categories(models.Model):
 class SubCategories(models.Model):
     name = models.CharField(max_length=100)
     slug = models.SlugField(unique=True, blank=True)
-    categories = models.ForeignKey(Categories, on_delete=models.DO_NOTHING)
+    categories = models.ForeignKey(
+        Categories,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+    )
     created_at = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):
@@ -57,16 +63,25 @@ class Product(models.Model):
 
     title = models.CharField(max_length=300)
     slug = models.SlugField(unique=True, blank=True, max_length=250)
+    views = models.PositiveIntegerField(default=0)
     regular_price = models.PositiveIntegerField()
     stoc = models.PositiveIntegerField(default=10, verbose_name="Available in Stock")
     out_of_stoc = models.BooleanField(default=False)
-    discounted_parcent = models.PositiveIntegerField()
+    discounted_parcent = models.PositiveIntegerField(default=0)
     description = RichTextField(max_length=2000)
     modle = models.CharField(max_length=50)
-    categories = models.ForeignKey(Categories, on_delete=models.DO_NOTHING)
+    categories = models.ForeignKey(
+        Categories,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+    )
+    is_featured = models.BooleanField(default=False, help_text="Mark product as top featured")
+    is_top_deal = models.BooleanField(default=False, help_text="Mark product as top deal")
+    top_deal_expiry = models.DateTimeField(blank=True, null=True, help_text="Expiry date for the top deal")
     tag = models.CharField(max_length=50, help_text="Enter your tag coma separated")
     vendor_stores = models.ForeignKey(VendorStore, on_delete=models.CASCADE, null=True, blank=True)
-    details_description = RichTextField(max_length=5000, 
+    details_description = RichTextField(max_length=5000,
         help_text="Details product description display in the bottom of the product Page. It's help buyer to make deceion on your product")
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -77,19 +92,19 @@ class Product(models.Model):
         )
         # format(price, ".2f")
         return price
-    
+
     @property
     def avarage_review(self):
         all_reviews = ProductStarRatingAndReview.objects.filter(product=self.id).aggregate(avarage=Avg('stars'))
         print(all_reviews)
         return all_reviews
-    
+
 
     @property
     def total_review_of_product(self):
         total_reviews = ProductStarRatingAndReview.objects.filter(product=self.id)
         return total_reviews
-    
+
     def save(self, *args, **kwargs):
         if not self.slug:
             base_slug = slugify(self.title)
@@ -106,7 +121,7 @@ class Product(models.Model):
 
 
 class ProductImage(models.Model):
-    image = models.CharField(max_length=300)
+    image = models.ImageField(upload_to="product-images/")
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     upload_at = models.DateTimeField(auto_now_add=True)
 
@@ -139,14 +154,14 @@ class ProductStarRatingAndReview(models.Model):
         # if self.review_message[10]:
         #     return self.user.email + self.review_message[10]
         return self.user.email
-    
+
 
 
     def save(self, *args, **kwargs):
-        if self.user.user_role != '1': # if not Customer 
+        if self.user.user_role != '1': # if not Customer
             raise PermissionDenied('Only Customer can Add Review')
         super().save(*args, **kwargs)
-    
+
 
 
 class CuponCodeGenaration(models.Model):
@@ -160,7 +175,7 @@ class CuponCodeGenaration(models.Model):
         return self.name
 
 class CustomerAddress(models.Model):
-    user = models.ForeignKey("accounts.CustomUser", on_delete=models.CASCADE)
+    user = models.ForeignKey("accounts.CustomUser", on_delete=models.PROTECT)
     state = models.CharField(max_length=60)
     city = models.CharField(max_length=60)
     zip_code = models.PositiveIntegerField()
@@ -218,8 +233,6 @@ class Cart(models.Model):
         return self.product.title
 
 
-
-
 class PlacedOder(models.Model):
     STATUS = [
         ("Oder Recived", "Oder Recived"),
@@ -227,7 +240,14 @@ class PlacedOder(models.Model):
         ("Oder OnTheWay", "Oder OnTheWay"),
         ("Oder Shipped", "Oder Shipped"),
     ]
-    # order_number = models.BigAutoField()
+    PAYMENT_CHOICES = [
+        ('bkash', 'Bkash'),
+        ('nagad', 'Nagad'),
+        ('cod', 'Cash On Delivery'),
+    ]
+
+    payment_method = models.CharField(max_length=20, choices=PAYMENT_CHOICES, default="cod")
+    transaction_id = models.CharField(max_length=100, blank=True, null=True)
     user = models.ForeignKey("accounts.CustomUser", on_delete=models.CASCADE)
     shipping_address = models.ForeignKey(
         CustomerAddress, on_delete=models.DO_NOTHING, related_name="shipping_address"
@@ -265,26 +285,43 @@ class PlacedOder(models.Model):
 
             for item in oder_items:
                 oder_items_list = []
-                # print(item.product.title)
-                # Checking if product image exists before accessing it
                 product_image = item.product.productimage_set.first()
                 if product_image:
                     image = product_image.image
                     oder_items_list.append(image)
                 else:
-                    # Append None or any default image if no image is found
                     oder_items_list.append('https://placehold.co/200x200')
+
                 title = item.product.title
                 quantity = item.quantity
                 total_price = item.total_price
-                oder_items_list.append(title)
-                oder_items_list.append(quantity)
-                oder_items_list.append(total_price)
+                oder_items_list.extend([title, quantity, total_price])
                 placed_oder_list.append(oder_items_list)
 
             placed_oder_items_dict[oder.oder_id] = placed_oder_list
+
         return placed_oder_items_dict
-        # return 'fg'
+
+    @classmethod
+    def completed_orders_for_vendor(cls, vendor_user):
+        """
+        Returns a dict of completed orders containing products of this vendor.
+        """
+        # Get all order items where product belongs to this vendor and order status is 'Oder Shipped'
+        completed_items = PlacedeOderItem.objects.filter(
+            product__vendor_stores__user=vendor_user,
+            placed_oder__status='Oder Shipped'
+        ).select_related('placed_oder', 'product')
+
+        # Group items by order_number
+        orders_dict = {}
+        for item in completed_items:
+            order_number = item.placed_oder.order_number
+            if order_number not in orders_dict:
+                orders_dict[order_number] = []
+            orders_dict[order_number].append(item)
+
+        return orders_dict
 
     def __str__(self):
         return self.order_number
@@ -329,3 +366,72 @@ class CompletedOderItems(models.Model):
 
     def __str__(self):
         return self.product.title[:20] + str(self.product.id)
+
+
+
+class Banner(models.Model):
+    title = models.CharField(max_length=200)
+    subtitle = models.CharField(max_length=200, blank=True, null=True)
+    image = models.ImageField(upload_to='banners/')
+    discount_percentage = models.PositiveIntegerField(blank=True, null=True)
+    category = models.ForeignKey('Categories', on_delete=models.SET_NULL, blank=True, null=True)
+    is_active = models.BooleanField(default=True)
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ['order']
+
+    def __str__(self):
+        return self.title
+
+    def get_products_url(self):
+        if self.category:
+            return reverse('all_products') + f'?category={self.category.id}'
+        return reverse('all_products')
+
+class HelpVideo(models.Model):
+    title = models.CharField(max_length=200)  # "How to use Account", etc.
+    slug = models.SlugField(unique=True, default='default-video')
+    video_file = models.FileField(upload_to='help_videos/')
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title
+
+class Complain(models.Model):
+    user = models.ForeignKey('accounts.CustomUser', on_delete=models.CASCADE)
+    order_number = models.CharField(max_length=50)
+    message = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.email} - {self.order_number}"
+
+
+class OrderComplain(models.Model):
+    order_number = models.CharField(max_length=100)
+    message = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    resolved = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"Complain #{self.id} - Order {self.order_number}"
+
+
+class ResellProduct(models.Model):
+    title = models.CharField(max_length=200)
+    description = models.TextField(blank=True, null=True)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    image = models.ImageField(upload_to="resell_products/")
+    slug = models.SlugField(unique=True, blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.title)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.title

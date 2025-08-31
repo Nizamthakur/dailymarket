@@ -1,0 +1,89 @@
+{% extends "BaseFiles/base.html" %}
+{% load static %}
+{% load custom_filters %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+
+    <!-- Page Title -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="fw-bold">{{ page_title }}</h2>
+        </div>
+    </div>
+
+    <!-- Product Grid -->
+    <div class="row g-4">
+        {% for product in products %}
+            <div class="col-6 col-md-4 col-lg-3">
+                <div class="card h-100 shadow-sm border-0">
+                    <div class="card-img-top position-relative overflow-hidden">
+                        <a href="{% url 'product_details' product.slug %}">
+                            {% if product.productimage_set.first %}
+                                <img src="{{ product.productimage_set.first.image.url }}" alt="{{ product.title }}" class="img-fluid">
+                            {% else %}
+                                <img src="{% static 'assets/img/default-product.png' %}" alt="{{ product.title }}" class="img-fluid">
+                            {% endif %}
+                        </a>
+                        {% if product.discounted_percent %}
+                            <span class="badge bg-danger position-absolute top-0 start-0 m-2">
+                                -{{ product.discounted_percent }}%
+                            </span>
+                        {% endif %}
+                    </div>
+                    <div class="card-body p-3 text-center">
+                        <h6 class="card-title mb-2">
+                            <a href="{% url 'product_details' product.slug %}" class="text-dark small">
+                                {{ product.title|truncatechars:35 }}
+                            </a>
+                        </h6>
+
+                        <!-- Rating -->
+                        <div class="mb-1">
+                            <ul class="list-inline mb-0">
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= product.avg_rating %}
+                                        <li class="list-inline-item text-warning"><i class="fas fa-star"></i></li>
+                                    {% else %}
+                                        <li class="list-inline-item text-muted"><i class="fas fa-star"></i></li>
+                                    {% endif %}
+                                {% endfor %}
+                            </ul>
+                            <small class="text-muted">({{ product.productstarratingandreview_set.count }})</small>
+                        </div>
+
+                        <!-- Price -->
+                        <p class="h6 mb-2">
+                            ৳{{ product.discounted_price|floatformat:2 }}
+                            {% if product.discounted_price < product.regular_price %}
+                                <del class="text-muted ms-1">৳{{ product.regular_price }}</del>
+                            {% endif %}
+                        </p>
+
+                        <!-- Short Description -->
+                        {% if product.lines %}
+                            <ul class="list-unstyled small mb-2 text-start">
+                                {% for line in product.lines %}
+                                    <li><i class="fas fa-circle me-2 text-primary"></i>{{ line|striptags }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+
+                        <!-- Add to Cart -->
+                        <div class="d-grid gap-2">
+                            <a href="{% url 'add_to_cart' product.id %}" class="btn btn-primary btn-sm">Add to Cart</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <div class="col-12 text-center">
+                <p class="text-muted">No products found.</p>
+            </div>
+        {% endfor %}
+    </div>
+
+</div>
+{% endblock %}

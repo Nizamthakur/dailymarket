@@ -1,7 +1,7 @@
 {% extends "baseFiles/base.html" %}
-
+{% load static %}
 {% block pagetitle %}
-    Multi Vendor E - Commerce
+    Daily Shopping
 {% endblock pagetitle %}
     
 
@@ -10,5 +10,45 @@
     {% include 'home/front-slider.html' %}
     {% include 'home/trending-product.html' %}
     {% include 'home/bottom-area.html' %}
+    <section class="top-viewed light-bg pt-60 pb-60">
+  <div class="container">
+    <div class="row mb-4 align-items-center">
+      <div class="col-md-6">
+        <h5 class="section-title mb-0">Just For You!</h5>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      {% for product in top_viewed_products %}
+      <div class="col-lg-3 col-md-4 col-6">
+        <div class="card shadow-sm border-0 h-100 hover-shadow">
+          <div class="card-img-top overflow-hidden position-relative">
+            <a href="{% url 'product_details' product.slug %}">
+              {% if product.productimage_set.first %}
+                <img src="{{ product.productimage_set.first.image.url }}" class="img-fluid" alt="{{ product.title }}">
+              {% else %}
+                <img src="{% static 'assets/img/default-product.png' %}" class="img-fluid" alt="{{ product.title }}">
+              {% endif %}
+            </a>
+          </div>
+          <div class="card-body text-center p-3">
+            <h6 class="card-title mb-2">
+              <a href="{% url 'product_details' product.slug %}" class="text-dark small">{{ product.title }}</a>
+            </h6>
+            <p class="h6 mb-2">
+              ৳{{ product.discounted_price }}
+              {% if product.discounted_price < product.regular_price %}
+                <del class="text-muted ms-1">৳{{ product.regular_price }}</del>
+              {% endif %}
+            </p>
+            <small class="text-muted">{{ product.views }} Views</small>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
 {% endblock bodycontent %}
     

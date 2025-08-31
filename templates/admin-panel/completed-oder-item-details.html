@@ -47,7 +47,7 @@
             <div class="row subtotal my-5">
                 <div class="col-6">
                     <h6>SubTotal ( {% if completed_oder.paid %} <small class="fw-bold text-success"> Paid</small> {% else %}<small class="fw-bold text-danger"> Due </small> {% endif %} )</h6>
-                    <p>${{completed_oder.sub_total_price|floatformat:2}}</p>
+                    <p>৳{{completed_oder.sub_total_price|floatformat:2}}</p>
                 </div>
                 <div class="col-6">
                     <h6>Oder Status</h6>

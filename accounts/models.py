@@ -31,20 +31,35 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         ('2', 'Editor'),
         ('3', 'Vendor'),
     ]
+
+    VENDOR_TYPES = [
+        ('vendor', 'Vendor'),
+        ('reseller', 'Reseller'),
+        ('shop', 'Shop'),
+    ]
+
     email = models.EmailField(unique=True)
     first_name = models.CharField(max_length=30)
     last_name = models.CharField(max_length=30)
     mobile = models.PositiveIntegerField()
-    user_role = models.CharField(choices=USER_ROLE, default=1, max_length=20)
-    date_joined = models.DateTimeField(default=timezone.now)
+    user_role = models.CharField(choices=USER_ROLE, default='1', max_length=20)
+    vendor_type = models.CharField(max_length=20, choices=VENDOR_TYPES, blank=True, null=True)
+    is_vendor_approved = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=True)
-
 
     objects = CustomUserManager()
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['first_name', 'last_name','mobile']
+    REQUIRED_FIELDS = ['first_name', 'last_name', 'mobile']
 
     def __str__(self):
         return self.email
+
+class Wallet(models.Model):
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name="wallet")
+    balance = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+
+    def __str__(self):
+        return f"{self.user.email} - Balance: {self.balance}"
+

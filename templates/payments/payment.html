@@ -1,85 +1,127 @@
 {% extends "baseFiles/base.html" %}
 {% load static %}
 
-
 {% block header-style %}
 <link rel="stylesheet" href="{% static 'customcss/style.css' %}" />
-
 {% endblock header-style %}
-    
 
 {% block bodycontent %}
-    
-<div class="container ">
+<div class="container">
     <div class="row mt-30 mb-30">
 
+        <!-- Cart Table -->
         <div class="col-6 products-details">
             <div class="table-responsive">
                 <table class="table">
                     <thead>
-                       <tr> 
+                       <tr>
                           <th class="cart-product-name">Product</th>
                           <th class="product-price">Unit Price</th>
                           <th class="product-quantity">Quantity</th>
                        </tr>
                     </thead>
                     <tbody>
-                        
-                        {% if cart_products %}   
-                        {% for product in cart_products %}
-    
-                       <tr>
-                          <td class="product-name"><a href="#">{{product.product.title}}</a></td>
-                          <td class="product-price"><span class="amount">${{product.product.discounted_price}}</span></td>
-                          <td class="product-quantity">
-                                <div class="d-inline-flex">
-                                    <p class="mx-2 cart-quantity" id="" >{{product.quantity}}</p>                                    
-                                </div>
-                          </td>
-                       </tr>
-                       {% endfor %}
-                       <tr><td class="fw-bold" >Payable: ${{payable | floatformat:2}}</td></tr>
-                       {% endif %}
+                        {% if carts %}
+                        {% for item in carts %}
+                        <tr>
+                          <td class="product-name"><a href="#">{{ item.product.title }}</a></td>
+                          <td class="product-price">৳{{ item.product.discounted_price }}</td>
+                          <td class="product-quantity">{{ item.quantity }}</td>
+                        </tr>
+                        {% endfor %}
+                        <tr>
+                            <td colspan="3" class="fw-bold">
+                                Payable: ৳{{ sub_total|floatformat:2 }} + Delivery charge
+                            </td>
+                        </tr>
+                        {% endif %}
                     </tbody>
               </table>
-            </div>   
+            </div>
         </div>
 
+        <!-- Payment & Shipping Section -->
         <div class="col-6 making-payment">
-            <div>
-                <p class='h3'>
-                    Enter your payment details:
-                </p>
-            </div>
-            <!-- Display a payment form -->
-            <form action="{% url 'strip_checkout' %}" method="POST" id="payment-form"> 
+            <h3 class="mb-3">Enter your payment details:</h3>
+
+            <form action="{% url 'check_out' %}" method="POST" id="payment-form">
                 {% csrf_token %}
-        
-                <input type="hidden" name="payable-ammount" id="payable-ammount" value="{{sub_total | floatformat:2}}">                            
-                <div id="payment-element">
-                
-                <!--Stripe.js injects the Payment Element-->
+
+                <!-- Shipping Address Selection -->
+                <div class="mb-3">
+                    <label for="selected_address_id" class="form-label fw-bold">Select Shipping Address:</label>
+                    <select name="selected_address_id" id="selected_address_id" class="form-select" required>
+                        {% for address in all_shipping_address %}
+                            <option value="{{ address.id }}" {% if selected_shipping_address and address.id == selected_shipping_address.id %}selected{% endif %}>
+                                {{ address.street_address }}, {{ address.city }}, {{ address.state }} - {{ address.zip_code }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    <p class="small mt-1">If no address exists, please <a href="{% url 'add_address' %}">add new address</a>.</p>
                 </div>
-                <button id="submit">
-                <div class="spinner hidden" id="spinner"></div>
-                <span id="button-text">Pay now</span>
-                </button>
-                <div id="payment-message" class="hidden"></div>
+
+                <!-- Payment Options -->
+                <div class="mb-3">
+                    <label class="fw-bold">Select Payment Method:</label><br>
+
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="radio" name="payment_method" id="bkash" value="bkash" required>
+                        <label class="form-check-label" for="bkash">
+                            বিকাশ পার্সোনাল: <b>01885200421</b><br>
+                            বিকাশ পেমেন্ট: <b>01601200421</b>
+                        </label>
+                    </div>
+
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="radio" name="payment_method" id="nagad" value="nagad">
+                        <label class="form-check-label" for="nagad">
+                            নগদ পার্সোনাল: <b>01885200421</b>
+                        </label>
+                    </div>
+
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="radio" name="payment_method" id="cod" value="cod">
+                        <label class="form-check-label" for="cod">
+                            Cash On Delivery (COD)
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Transaction ID field -->
+                <div class="mb-3" id="transaction-field" style="display:none;">
+                    <label for="transaction_id" class="form-label">Transaction ID / Sender Number:</label>
+                    <input type="text" class="form-control" name="transaction_id" id="transaction_id" placeholder="Enter Transaction ID">
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100">Confirm Order</button>
             </form>
-                    
         </div>
     </div>
 </div>
 
+<!-- Show/Hide Transaction Field -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const paymentRadios = document.querySelectorAll('input[name="payment_method"]');
+    const txnField = document.getElementById("transaction-field");
+
+    function toggleTxnField() {
+        const selected = document.querySelector('input[name="payment_method"]:checked');
+        if (selected && (selected.value === "bkash" || selected.value === "nagad")) {
+            txnField.style.display = "block";
+            document.getElementById("transaction_id").required = true;
+        } else {
+            txnField.style.display = "none";
+            document.getElementById("transaction_id").required = false;
+        }
+    }
+
+    paymentRadios.forEach(radio => {
+        radio.addEventListener("change", toggleTxnField);
+    });
+
+    // initial call if pre-selected
+    toggleTxnField();
+});
+</script>
 {% endblock bodycontent %}
-
-
-{% block staticfiles_js %}
-
-<script src="https://js.stripe.com/v3/"></script>
-<script src="{% static 'customjs/strip.js' %}"></script>
-
-    
-{% endblock staticfiles_js %}
-    
-    

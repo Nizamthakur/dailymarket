@@ -1,0 +1,21 @@
+{% extends 'baseFiles/base.html' %}
+
+{% block content %}
+<h4>Search results for "{{ query }}"</h4>
+
+<div class="row g-3">
+  {% for product in products %}
+    <div class="col-6 col-md-4 col-lg-2">
+      <div class="product__item product__item-2">
+        <a href="{% url 'product_details' product.slug %}">
+          <img src="{{ product.productimage_set.first.image.url }}" alt="{{ product.title }}" class="img-fluid">
+          <h6>{{ product.title }}</h6>
+          <p>৳{{ product.discounted_price }}</p>
+        </a>
+      </div>
+    </div>
+  {% empty %}
+    <p>No products found.</p>
+  {% endfor %}
+</div>
+{% endblock %}

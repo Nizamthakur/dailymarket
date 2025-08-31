@@ -46,7 +46,7 @@
 ---------------------------------*/
 body {
   font-family: "Rubik", sans-serif;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: normal;
   color: #666;
   line-height: 26px;
@@ -380,7 +380,7 @@ input {
 }
 
 .d-blue-bg {
-  background-color: #263C97;
+  background-color: #ed5d24;
 }
 
 .d-dark-bg {
@@ -3014,7 +3014,7 @@ input {
   overflow: hidden;
 }
 .categories__img img {
-  min-height: 140px;
+  min-height: 100px;
   transition: all 0.3s ease-out 0s;
 }
 .categories__content {
@@ -3025,7 +3025,7 @@ input {
 }
 .categories__content h6 {
   color: #ffffff;
-  font-size: 16px;
+  font-size: 10px;
   font-weight: 400;
   letter-spacing: -0.025em;
   margin-bottom: 5px;
@@ -3165,7 +3165,7 @@ input {
   padding-bottom: 70px;
 }
 .product__content h6 {
-  font-size: 15px;
+  font-size: 20px;
   line-height: 1.2;
   font-weight: 500;
   color: #0068c9;
@@ -3468,7 +3468,7 @@ input {
 
 .rating {
   transition: 0.3s;
-  display: flex;
+
   align-items: center;
 }
 .rating ul {
@@ -6892,3 +6892,56 @@ p.checkout-coupon input[type=text]::placeholder {
 }
 
 /*# sourceMappingURL=style.css.map */
+/* Hide mobile footer on desktop */
+.mobile-footer {
+    display: none;
+}
+
+/* Only show on small screens (mobile) */
+@media screen and (max-width: 768px) {
+    .footer-area { display: none; } /* Hide desktop footer */
+    .mobile-footer {
+        display: block;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background-color: #fff;
+        border-top: 1px solid #ddd;
+        z-index: 9999;
+    }
+
+    .mobile-footer ul {
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: space-around;
+        list-style: none;
+    }
+
+    .mobile-footer li a {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 10px 0;
+        color: #333;
+        font-size: 12px;
+        text-decoration: none;
+    }
+
+    .mobile-footer li a i {
+        font-size: 20px;
+        margin-bottom: 3px;
+    }
+
+    .mobile-footer li a span {
+        font-size: 12px;
+    }
+}
+
+.mobile-footer-icon {
+    width: 20px;    /* adjust size */
+    height: 20px;   /* adjust size */
+    display: block;
+    margin-bottom: 2px;
+}

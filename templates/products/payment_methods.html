@@ -1,0 +1,43 @@
+{% extends "baseFiles/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container py-5">
+    <h2 class="mb-4">Payment Rules & Regulations</h2>
+    <p>
+        Welcome to our Payment Rules & Regulations section. Please read the following carefully
+        to understand how payments are handled on this platform.
+    </p>
+
+    <h4>1. Accepted Payment Methods</h4>
+    <p>We accept the following payment methods:</p>
+    <div style="display:flex; gap:20px; align-items:center; margin-bottom:20px;">
+        <img src="{% static 'assets/img/bkash.png' %}" alt="Bkash" style="height:50px;">
+        <img src="{% static 'assets/img/bkash.png' %}" alt="Nagad" style="height:50px;">
+        <img src="{% static 'assets/img/bkash.png' %}" alt="Upay" style="height:50px;">
+        <img src="{% static 'assets/img/bkash.png' %}" alt="Visa" style="height:50px;">
+        <img src="{% static 'assets/img/bkash.png' %}" alt="MasterCard" style="height:50px;">
+    </div>
+
+    <h4>2. Payment Confirmation</h4>
+    <p>
+        Payments are confirmed once you receive an official receipt via email or SMS.
+    </p>
+
+    <h4>3. Refund Policy</h4>
+    <p>
+        Refunds are processed within 5–7 business days if an order is cancelled or returned
+        according to our Return Policy.
+    </p>
+
+    <h4>4. Security</h4>
+    <p>
+        All transactions are encrypted and secure. Please do not share your payment credentials with anyone.
+    </p>
+
+    <h4>5. Disputes</h4>
+    <p>
+        Any payment disputes must be reported within 7 days of the transaction. Our support team will review and resolve the issue.
+    </p>
+</div>
+{% endblock %}
